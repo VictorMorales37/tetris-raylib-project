@@ -31,6 +31,7 @@ typedef struct Block
     Rectangle rect;
     Color color;
     Color outlineColor;
+    Vector2 lastPosition;
 
 } Block;
 
@@ -44,16 +45,6 @@ typedef struct Piece {
     bool isPlaced;
 
 } Piece;
-
-/* void shuffleArray(int * array) {
-    
-    for (int i = 0; i < 7; i++) {
-        int j = rand() % 7; 
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-} */
 
 void drawGrid() {
     
@@ -202,23 +193,24 @@ void applyCollisionsBlocks(Piece * piece, Block * array, int arraySize) {
         
         for (int j = 0; j < arraySize; j++) {
             
-            if (CheckCollisionRecs(piece->blocks[i].rect, array[j].rect)) {
+            if ((piece->blocks[i].rect.x == array[j].rect.x) 
+            && (piece->blocks[i].rect.y == array[j].rect.y)) {
                 
-                puts("Collision detected.");
-
-                Rectangle overlap = GetCollisionRec(piece->blocks[i].rect, array[j].rect);
-
-                if (piece->blocks[i].rect.y <= array[j].rect.y) {
-                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y -= overlap.height;}
-                    piece->y -= overlap.height;
+                if (piece->blocks[i].lastPosition.x < array[j].rect.x) {
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x -= GRID_SQUARE_SIZE;}
                 }
-                else {
-                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y += overlap.height;}
-                    piece->y += overlap.height;
+                else if (piece->blocks[i].lastPosition.x > array[j].rect.x){
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x += GRID_SQUARE_SIZE;}
                 }
-                piece->isPlaced = true;
-                return;
-                
+
+                if (piece->blocks[i].lastPosition.y < array[j].rect.y) {
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y -= GRID_SQUARE_SIZE;}
+                    piece->isPlaced = true;
+                    return;
+                }
+                else if (piece->blocks[i].lastPosition.y > array[j].rect.y){
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y += GRID_SQUARE_SIZE;}
+                }
             }
         }
     }
@@ -239,6 +231,11 @@ void rotatePiece(Piece * piece) {
 
 void movementInput(Piece * piece, Block * array, int arraySize) {
     
+    for (int i = 0; i < 4; i++) {
+        piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
+        piece->blocks[i].lastPosition.y = piece->blocks[i].rect.y;
+    }
+
     if (piece->isPlaced == false) {
         
         if (IsKeyPressed(KEY_W)) {rotatePiece(piece); return;}
@@ -280,15 +277,17 @@ void movementInput(Piece * piece, Block * array, int arraySize) {
 
 void movePieceDown(Piece * piece, Block * array, int arraySize) {
     
+    for (int i = 0; i < 4; i++) {
+        piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
+        piece->blocks[i].lastPosition.y = piece->blocks[i].rect.y;
+    }
+
     if (piece->isPlaced == false) {
         
         for (int i = 0; i < 4; i++) {        
             piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
         }
         piece->y += GRID_SQUARE_SIZE;
-    
-        if (piece->isPlaced) {return;}
-        return;
     }
 }
 
@@ -302,19 +301,12 @@ void drawPiece(Piece * piece) {
 
 int main(void) {
     
-    //INITIALIZATION
-    /* int typeSequence[7] = {0, 1, 2, 3, 4, 5, 6};
-    int typeIndex = 0;    */ 
-    
     Block blockBuffer[200];
     int bufferSize = 0;
     
     float speed = 1;
     float skipEveryFrame = TARGET_FPS / speed;
     int frame = 0;
-    
-    srand(time(NULL));
-    /* shuffleArray(typeSequence); */
     
     Piece * currentPiece;
     
@@ -341,16 +333,9 @@ int main(void) {
             applyCollisionsBlocks(currentPiece, blockBuffer, bufferSize);
 
             if (currentPiece->isPlaced) {
-                //typeIndex++;    
                 savePlacedBlocks(currentPiece, blockBuffer, &bufferSize);
                 currentPiece = spawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
-            
-            /* if (typeIndex >= 6) {
-                typeIndex = 0;
-                shuffleArray(typeSequence);
-            } */
-                
         }
 
         //DRAW
