@@ -6,6 +6,7 @@ Current features:
 - Piece spawning system
 - Piece rotation 
 - Vertical movement (by gravity and player input) 
+- Horizontal movement
 - Piece placing
 - Wall collisions
 
