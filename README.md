@@ -4,18 +4,17 @@ Tetris game recreation in C using the Raylib framework/library.
 Current features:
 
 - Piece spawning system
-- Piece rotation 
+- Rotation movement
 - Vertical movement (by gravity and player input) 
 - Horizontal movement
 - Piece placing
-- Wall collisions
+- Piece collisions
 
 Missing features:
 
 - Main menu
 - Settings menu
 - Other 6 piece types
-- Default Tetris random piece spawning
-- Horizontal collisions with placed pieces
+- Tetris' Signature random piece spawning
 - Scoring system
 - "Game Over" possibility
