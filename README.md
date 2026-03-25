@@ -1,4 +1,7 @@
 # tetris-raylib-project
+
+To compile, run "gcc tetris.c -o tetris -lraylib -lm -ldl -lpthread -lGL -lX11"
+
 Tetris game recreation in C using the Raylib framework/library.
 
 Current features:

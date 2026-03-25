@@ -1,0 +1,13 @@
+# compiled output
+*.o
+*.exe
+
+# dependencies
+node_modules/
+
+# editor files
+.vscode/
+.idea/
+
+# secrets
+.env
