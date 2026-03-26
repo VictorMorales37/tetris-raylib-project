@@ -32,6 +32,7 @@ typedef struct Block
     Color color;
     Color outlineColor;
     Vector2 lastPosition;
+    struct Block * next;
 
 } Block;
 
@@ -123,23 +124,41 @@ Piece * spawnPiece(int type, int x, int y, int rotation) {
     return newPiece;            
 }
 
-void savePlacedBlocks(Piece * piece, Block * array, int * arraySize) {
+void savePlacedBlocks(Piece * piece, Block * head) {
+    
+    Block * pBlock = head;
     
     for (int i = 0; i < 4; i++) {
-        array[*arraySize] = piece->blocks[i];
-        *arraySize += 1;
+        
+        Block * newBlock = malloc(sizeof(Block));
+        newBlock->next = NULL;
+
+        newBlock->rect = piece->blocks[i].rect;
+        newBlock->color = piece->blocks[i].color;
+        newBlock->outlineColor = piece->blocks[i].outlineColor;
+        newBlock->lastPosition = piece->blocks[i].lastPosition;
+
+        while (pBlock->next != NULL) {
+            pBlock = pBlock->next;
+        }
+
+        pBlock->next = newBlock;
+        puts("Saved 1 block.");
     }
 
-    puts("Saved piece blocks");
     free(piece);
-    puts("Freed piece");
+    puts("Freed piece.");
 }
 
-void drawPlacedBlocks(Block * array, int arraySize) {
+void drawPlacedBlocks(Block * head) {
     
-    for (int i = 0; i == 0 || i < arraySize; i++) {
-        DrawRectangleRec(array[i].rect, array[i].color);
-        DrawRectangleLines(array[i].rect.x, array[i].rect.y, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, array[i].outlineColor);
+    Block * pBlock = head->next;
+
+    while (pBlock != NULL) {
+        DrawRectangleRec(pBlock->rect, pBlock->color);
+        DrawRectangleLines(pBlock->rect.x, pBlock->rect.y, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, pBlock->outlineColor);
+
+        pBlock = pBlock->next;
     }
 }
 
@@ -187,31 +206,37 @@ void applyCollisionsWalls(Piece * piece) {
 
 }
 
-void applyCollisionsBlocks(Piece * piece, Block * array, int arraySize) {  
+void applyCollisionsBlocks(Piece * piece, Block * head) {  
+
+    Block * pBlock = head->next;
 
     for (int i = 0; i < 4; i++) {
         
-        for (int j = 0; j < arraySize; j++) {
-            
-            if ((piece->blocks[i].rect.x == array[j].rect.x) 
-            && (piece->blocks[i].rect.y == array[j].rect.y)) {
+        pBlock = head->next;
+        
+        while (pBlock != NULL) {
+         
+            if ((piece->blocks[i].rect.x == pBlock->rect.x) 
+            && (piece->blocks[i].rect.y == pBlock->rect.y)) {
                 
-                if (piece->blocks[i].lastPosition.x < array[j].rect.x) {
+                if (piece->blocks[i].lastPosition.x < pBlock->rect.x) {
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x -= GRID_SQUARE_SIZE;}
                 }
-                else if (piece->blocks[i].lastPosition.x > array[j].rect.x){
+                else if (piece->blocks[i].lastPosition.x > pBlock->rect.x){
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x += GRID_SQUARE_SIZE;}
                 }
 
-                if (piece->blocks[i].lastPosition.y < array[j].rect.y) {
+                if (piece->blocks[i].lastPosition.y < pBlock->rect.y) {
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y -= GRID_SQUARE_SIZE;}
                     piece->isPlaced = true;
                     return;
                 }
-                else if (piece->blocks[i].lastPosition.y > array[j].rect.y){
+                else if (piece->blocks[i].lastPosition.y > pBlock->rect.y){
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y += GRID_SQUARE_SIZE;}
                 }
             }
+
+            pBlock = pBlock->next;
         }
     }
 }
@@ -224,12 +249,13 @@ void rotatePiece(Piece * piece) {
     int tempX = piece->x;
     int tempY = piece->y;
     free(piece);
-
-    piece = spawnPiece(tempType, tempX, tempY, rotation);
-
+    
+    Piece * rotated = spawnPiece(tempType, tempX, tempY, rotation);
+    
+    piece = rotated;
 }
 
-void movementInput(Piece * piece, Block * array, int arraySize) {
+void movementInput(Piece * piece) {
     
     for (int i = 0; i < 4; i++) {
         piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
@@ -275,7 +301,7 @@ void movementInput(Piece * piece, Block * array, int arraySize) {
     }
 }
 
-void movePieceDown(Piece * piece, Block * array, int arraySize) {
+void movePieceDown(Piece * piece) {
     
     for (int i = 0; i < 4; i++) {
         piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
@@ -301,8 +327,8 @@ void drawPiece(Piece * piece) {
 
 int main(void) {
     
-    Block blockBuffer[200];
-    int bufferSize = 0;
+    Block * head = malloc(sizeof(Block));
+    head->next = NULL;
     
     float speed = 1;
     float skipEveryFrame = TARGET_FPS / speed;
@@ -320,20 +346,20 @@ int main(void) {
         
         //UPDATE     
         frame += 1;
-        movementInput(currentPiece, blockBuffer, bufferSize);
+        movementInput(currentPiece);
         applyCollisionsWalls(currentPiece);
-        applyCollisionsBlocks(currentPiece, blockBuffer, bufferSize);
+        applyCollisionsBlocks(currentPiece, head);
 
         if (frame >= skipEveryFrame) {
 
             frame = 0;
             
-            movePieceDown(currentPiece, blockBuffer, bufferSize);
+            movePieceDown(currentPiece);
             applyCollisionsWalls(currentPiece);
-            applyCollisionsBlocks(currentPiece, blockBuffer, bufferSize);
+            applyCollisionsBlocks(currentPiece, head);
 
             if (currentPiece->isPlaced) {
-                savePlacedBlocks(currentPiece, blockBuffer, &bufferSize);
+                savePlacedBlocks(currentPiece, head);
                 currentPiece = spawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
         }
@@ -343,7 +369,7 @@ int main(void) {
 
         ClearBackground(DARKPURPLE);
         drawGrid();
-        drawPlacedBlocks(blockBuffer, bufferSize);
+        drawPlacedBlocks(head);
         drawPiece(currentPiece);
 
         EndDrawing();   
@@ -351,5 +377,14 @@ int main(void) {
     }
     //DE-INITIALIZATION
     CloseWindow();
+    Block * temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+        puts("Block freed");
+    }
+    free(head);
+    puts("Head freed");
     return 0;
 }
