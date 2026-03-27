@@ -213,7 +213,7 @@ void applyCollisionsBlocks(Piece * piece, Block * head) {
     for (int i = 0; i < 4; i++) {
         
         pBlock = head->next;
-        
+
         while (pBlock != NULL) {
          
             if ((piece->blocks[i].rect.x == pBlock->rect.x) 
@@ -243,16 +243,57 @@ void applyCollisionsBlocks(Piece * piece, Block * head) {
 
 void rotatePiece(Piece * piece) {
 
-    int rotation = (piece->rotation + 90) % 360;
-    
-    int tempType = piece->type;
-    int tempX = piece->x;
-    int tempY = piece->y;
-    free(piece);
-    
-    Piece * rotated = spawnPiece(tempType, tempX, tempY, rotation);
-    
-    piece = rotated;
+    piece->rotation = (piece->rotation + 90) % 360;
+
+    switch(piece->type) {
+
+        case I_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0 || piece->rotation == 180) {    
+            
+                int offsetsX[3] = {-1, 1, 2};
+                int offsetsY[3] = {0, 0, 0};
+                
+                for (int i = 0; i < 3; i++) {
+                    piece->blocks[i] = (Block) 
+                    {
+                        .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                            piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                            GRID_SQUARE_SIZE, 
+                            GRID_SQUARE_SIZE},
+                        .color = BLUE,
+                        .outlineColor = DARKBLUE 
+                    };
+                }
+            }
+
+            else if (piece->rotation == 90 || piece->rotation == 270) {    
+            
+                int offsetsX[3] = {0, 0, 0};
+                int offsetsY[3] = {-1, 1, 2};
+            
+                for (int i = 0; i < 3; i++) {
+                    piece->blocks[i] = (Block) 
+                    {
+                        .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                            piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                            GRID_SQUARE_SIZE, 
+                            GRID_SQUARE_SIZE},
+                        .color = BLUE,
+                        .outlineColor = DARKBLUE 
+                    };
+                }
+            }
+        }
+        break;
+
+        default: 
+            break;
+    }
+    return;
 }
 
 void movementInput(Piece * piece) {
@@ -264,8 +305,12 @@ void movementInput(Piece * piece) {
 
     if (piece->isPlaced == false) {
         
-        if (IsKeyPressed(KEY_W)) {rotatePiece(piece); return;}
-        
+        if (IsKeyPressed(KEY_W)) {
+            
+            rotatePiece(piece);
+            return;
+        }
+
         if (IsKeyPressed(KEY_D)) {
             
             for (int i = 0; i < 4; i++) {
@@ -325,11 +370,46 @@ void drawPiece(Piece * piece) {
     }
 }
 
+bool detectCombos(Block * head, bool * comboLines) {
+    
+    if (head == NULL) {return false;}
+
+    int counter = 0;
+    int comboCounter = 0;
+    Block * pBlock = head->next;
+
+    for (int i = 0; i < GRID_HEIGHT; i++) {
+
+        counter = 0;
+        pBlock = head->next;
+
+        while (head->next != NULL && pBlock != NULL) {
+            if (pBlock->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {
+                counter += 1;
+            }
+            pBlock = pBlock->next;
+        }
+
+        if (counter == GRID_WIDTH) {
+            comboCounter += 1;
+            comboLines[i] = true;
+        }
+    }
+
+    if (counter >= GRID_WIDTH) {
+        printf("\n%d combos detected\n", comboCounter);
+        return true;
+    }
+
+    return false;
+}
+
 int main(void) {
     
     Block * head = malloc(sizeof(Block));
     head->next = NULL;
     
+    bool comboLines[GRID_HEIGHT] = {false};
     float speed = 1;
     float skipEveryFrame = TARGET_FPS / speed;
     int frame = 0;
@@ -347,19 +427,21 @@ int main(void) {
         //UPDATE     
         frame += 1;
         movementInput(currentPiece);
-        applyCollisionsWalls(currentPiece);
         applyCollisionsBlocks(currentPiece, head);
-
+        applyCollisionsWalls(currentPiece);
+        
         if (frame >= skipEveryFrame) {
-
+            
             frame = 0;
             
             movePieceDown(currentPiece);
-            applyCollisionsWalls(currentPiece);
             applyCollisionsBlocks(currentPiece, head);
-
+            applyCollisionsWalls(currentPiece);
+            
             if (currentPiece->isPlaced) {
                 savePlacedBlocks(currentPiece, head);
+                if (detectCombos(head, comboLines)) {
+                }
                 currentPiece = spawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
         }
