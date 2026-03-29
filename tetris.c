@@ -333,7 +333,7 @@ void movementInput(Piece * piece) {
             return;
         }
         
-        if (IsKeyPressed(KEY_S)) {
+        if (IsKeyDown(KEY_S)) {
             
             for (int i = 0; i < 4; i++) {
                 piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
@@ -374,8 +374,8 @@ bool detectCombos(Block * head, bool * comboLines) {
     
     if (head == NULL) {return false;}
 
-    int counter = 0;
-    int comboCounter = 0;
+    bool returnValue = false;
+    int counter;
     Block * pBlock = head->next;
 
     for (int i = 0; i < GRID_HEIGHT; i++) {
@@ -383,25 +383,56 @@ bool detectCombos(Block * head, bool * comboLines) {
         counter = 0;
         pBlock = head->next;
 
-        while (head->next != NULL && pBlock != NULL) {
-            if (pBlock->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {
-                counter += 1;
-            }
+        while (pBlock != NULL) {
+            if (pBlock->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {counter += 1;}
             pBlock = pBlock->next;
         }
 
         if (counter == GRID_WIDTH) {
-            comboCounter += 1;
+            puts("Combo detected.");
             comboLines[i] = true;
+            returnValue = true;
+        }
+    }
+    return returnValue;
+}
+
+void removeLines(Block * head, bool * comboLines) {
+
+    if (head == NULL) {return;}
+    
+    Block * pBlock;
+    Block * temp;
+    int lastLine = 0;
+    int comboCounter = 0;
+
+    for (int i = 0; i < GRID_HEIGHT; i++) {
+        
+        if (comboLines[i] == true) {
+            
+            comboLines[i] = false;
+            lastLine = i;
+            comboCounter += 1;
+
+            pBlock = head;
+            while (pBlock->next != NULL) {
+                if (pBlock->next->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {
+                    temp = pBlock->next;
+                    pBlock->next = pBlock->next->next;
+                    free(temp);            
+                } 
+                else {pBlock = pBlock->next;}
+            }
         }
     }
 
-    if (counter >= GRID_WIDTH) {
-        printf("\n%d combos detected\n", comboCounter);
-        return true;
+    pBlock = head->next;
+    while (pBlock != NULL) {
+        if (pBlock->rect.y < GRID_STARTING_Y + lastLine * GRID_SQUARE_SIZE) {
+            pBlock->rect.y += GRID_SQUARE_SIZE * comboCounter;
+        }
+        pBlock = pBlock->next;
     }
-
-    return false;
 }
 
 int main(void) {
@@ -441,6 +472,7 @@ int main(void) {
             if (currentPiece->isPlaced) {
                 savePlacedBlocks(currentPiece, head);
                 if (detectCombos(head, comboLines)) {
+                    removeLines(head, comboLines);
                 }
                 currentPiece = spawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
@@ -459,6 +491,10 @@ int main(void) {
     }
     //DE-INITIALIZATION
     CloseWindow();
+    if (currentPiece != NULL) {
+        free(currentPiece);
+    }
+
     Block * temp;
     while (head != NULL) {
         temp = head;
