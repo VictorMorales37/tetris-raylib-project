@@ -15,7 +15,7 @@
 #define GRID_WALL_RIGHT (GRID_STARTING_X + (GRID_WIDTH * GRID_SQUARE_SIZE))
 #define GRID_FLOOR (GRID_STARTING_Y + (GRID_HEIGHT * GRID_SQUARE_SIZE))
 
-enum pieceTypes {
+enum piecetypes {
     
     I_SHAPED,
     J_SHAPED,
@@ -26,42 +26,43 @@ enum pieceTypes {
     T_SHAPED
 };
 
-typedef struct Block
+typedef struct Block_t
 {
     Rectangle rect;
     Color color;
     Color outlineColor;
     Vector2 lastPosition;
-    struct Block * next;
+    struct Block_t * next;
 
-} Block;
+} Block_t;
 
-typedef struct Piece {
+typedef struct Piece_t {
 
     int type;
     int x;
     int y;
     int rotation;
-    Block blocks[4];
+    Block_t blocks[4];
     bool isPlaced;
 
-} Piece;
+} Piece_t;
 
-void drawGrid() {
+void DrawTetrisGrid() {
     
     for (int i = 0; i < GRID_WIDTH; i++) {
+
         for (int j = 0; j < GRID_HEIGHT; j++) {
-            
+
             DrawRectangle(GRID_STARTING_X + i * GRID_SQUARE_SIZE, GRID_STARTING_Y + j * GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, BLACK);
-            
+
             DrawRectangleLines(GRID_STARTING_X + i * GRID_SQUARE_SIZE, GRID_STARTING_Y + j * GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, DARKGRAY);
         }
     }
 }   
 
-Piece * spawnPiece(int type, int x, int y, int rotation) {
+Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
     
-    Piece * newPiece = malloc(sizeof(Piece));
+    Piece_t * newPiece = malloc(sizeof(Piece_t));
 
     newPiece->x = x;
     newPiece->y = y;
@@ -82,7 +83,7 @@ Piece * spawnPiece(int type, int x, int y, int rotation) {
             int offsetsY[3] = {0, 0, 0};
             
             for (int i = 0; i < 3; i++) {
-                newPiece->blocks[i] = (Block) 
+                newPiece->blocks[i] = (Block_t) 
                 {
                     .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                         newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -104,7 +105,7 @@ Piece * spawnPiece(int type, int x, int y, int rotation) {
             int offsetsY[3] = {-1, 0, 0};
             
             for (int i = 0; i < 3; i++) {
-                newPiece->blocks[i] = (Block) 
+                newPiece->blocks[i] = (Block_t) 
                 {
                     .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                         newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -117,21 +118,65 @@ Piece * spawnPiece(int type, int x, int y, int rotation) {
             break;
         }
 
+        case L_SHAPED:
+        {
+            newPiece->blocks[3].color = ORANGE;
+            newPiece->blocks[3].outlineColor = BROWN;
+            
+            int offsetsX[3] = {-1, 1, 1};
+            int offsetsY[3] = {0, 0, -1};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = ORANGE,
+                    .outlineColor = BROWN 
+                };
+            }
+            break;
+        }
+
+        case O_SHAPED:
+        {
+            newPiece->blocks[3].color = YELLOW;
+            newPiece->blocks[3].outlineColor = BROWN;
+            
+            int offsetsX[3] = {0, 1, 1};
+            int offsetsY[3] = {1, 0, 1};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = YELLOW,
+                    .outlineColor = BROWN 
+                };
+            }
+            break;
+        }
+
         default:
             break;
     }
 
-    puts("New piece spawned");
+    puts("Piece_t spawned.");
     return newPiece;            
 }
 
-void savePlacedBlocks(Piece * piece, Block * head) {
+void SavePlacedBlocks(Piece_t * piece, Block_t * head) {
     
-    Block * pBlock = head;
+    Block_t * pBlock = head;
     
     for (int i = 0; i < 4; i++) {
-        
-        Block * newBlock = malloc(sizeof(Block));
+
+        Block_t * newBlock = malloc(sizeof(Block_t));
         newBlock->next = NULL;
 
         newBlock->rect = piece->blocks[i].rect;
@@ -144,37 +189,42 @@ void savePlacedBlocks(Piece * piece, Block * head) {
         }
 
         pBlock->next = newBlock;
+
         puts("Saved 1 block.");
     }
+
+    
 
     free(piece);
     puts("Freed piece.");
 }
 
-void drawPlacedBlocks(Block * head) {
+void DrawPlacedBlocks(Block_t * head) {
     
-    Block * pBlock = head->next;
+    Block_t * pBlock = head->next;
 
     while (pBlock != NULL) {
+
         DrawRectangleRec(pBlock->rect, pBlock->color);
-        DrawRectangleLines(pBlock->rect.x, pBlock->rect.y, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, pBlock->outlineColor);
+        
+        DrawRectangleLines(pBlock->rect.x, pBlock->rect.y, 
+        GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, pBlock->outlineColor);
 
         pBlock = pBlock->next;
     }
 }
 
-void applyCollisionsWalls(Piece * piece) {
+void ApplyCollisionsWalls(Piece_t * piece) {
     
     for (int i = 0; i < 4; i++) {
     
         if (piece->blocks[i].rect.y + GRID_SQUARE_SIZE >= GRID_FLOOR) {
 
             piece->isPlaced = true;
+
             float overlap = (piece->blocks[i].rect.y + GRID_SQUARE_SIZE - GRID_FLOOR);
 
-            for (int j = 0; j < 4; j++) {
-                piece->blocks[j].rect.y -= overlap;
-            }
+            for (int j = 0; j < 4; j++) {piece->blocks[j].rect.y -= overlap;}
             return;
         }
     }
@@ -185,9 +235,7 @@ void applyCollisionsWalls(Piece * piece) {
 
             float overlap = (piece->blocks[i].rect.x + GRID_SQUARE_SIZE - GRID_WALL_RIGHT);
 
-            for (int j = 0; j < 4; j++) {
-                piece->blocks[j].rect.x -= overlap;
-            }
+            for (int j = 0; j < 4; j++) {piece->blocks[j].rect.x -= overlap;}
             return;
         }
     }
@@ -198,18 +246,15 @@ void applyCollisionsWalls(Piece * piece) {
 
             float overlap = (GRID_STARTING_X - piece->blocks[i].rect.x);
 
-            for (int j = 0; j < 4; j++) {
-                piece->blocks[j].rect.x += overlap;
-            }
+            for (int j = 0; j < 4; j++) {piece->blocks[j].rect.x += overlap;}
             return;
         }
     }
-
 }
 
-void applyCollisionsBlocks(Piece * piece, Block * head) {  
+void ApplyCollisionsBlocks(Piece_t * piece, Block_t * head) {  
 
-    Block * pBlock = head->next;
+    Block_t * pBlock = head->next;
 
     for (int i = 0; i < 4; i++) {
         
@@ -218,21 +263,28 @@ void applyCollisionsBlocks(Piece * piece, Block * head) {
         while (pBlock != NULL) {
          
             if ((piece->blocks[i].rect.x == pBlock->rect.x) 
-            && (piece->blocks[i].rect.y == pBlock->rect.y)) {
-                
+                && (piece->blocks[i].rect.y == pBlock->rect.y)) {
+                    
                 if (piece->blocks[i].lastPosition.x < pBlock->rect.x) {
+
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x -= GRID_SQUARE_SIZE;}
-                }
-                else if (piece->blocks[i].lastPosition.x > pBlock->rect.x){
+                } 
+                
+                else if (piece->blocks[i].lastPosition.x > pBlock->rect.x) {
+
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x += GRID_SQUARE_SIZE;}
                 }
 
                 if (piece->blocks[i].lastPosition.y < pBlock->rect.y) {
+                
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y -= GRID_SQUARE_SIZE;}
+                
                     piece->isPlaced = true;
                     return;
                 }
+
                 else if (piece->blocks[i].lastPosition.y > pBlock->rect.y){
+                
                     for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y += GRID_SQUARE_SIZE;}
                 }
             }
@@ -242,7 +294,7 @@ void applyCollisionsBlocks(Piece * piece, Block * head) {
     }
 }
 
-void rotatePiece(Piece * piece) {
+void RotatePiece(Piece_t * piece) {
 
     piece->rotation = (piece->rotation + 90) % 360;
 
@@ -259,7 +311,7 @@ void rotatePiece(Piece * piece) {
                 int offsetsY[3] = {0, 0, 0};
                 
                 for (int i = 0; i < 3; i++) {
-                    piece->blocks[i] = (Block) 
+                    piece->blocks[i] = (Block_t) 
                     {
                         .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                             piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -277,7 +329,7 @@ void rotatePiece(Piece * piece) {
                 int offsetsY[3] = {-1, 1, 2};
             
                 for (int i = 0; i < 3; i++) {
-                    piece->blocks[i] = (Block) 
+                    piece->blocks[i] = (Block_t) 
                     {
                         .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                             piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -302,7 +354,7 @@ void rotatePiece(Piece * piece) {
                 int offsetsY[3] = {-1, 0, 0};
                 
                 for (int i = 0; i < 3; i++) {
-                    piece->blocks[i] = (Block) 
+                    piece->blocks[i] = (Block_t) 
                     {
                         .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                             piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -320,7 +372,7 @@ void rotatePiece(Piece * piece) {
                 int offsetsY[3] = {-1, -1, 1};
             
                 for (int i = 0; i < 3; i++) {
-                    piece->blocks[i] = (Block) 
+                    piece->blocks[i] = (Block_t) 
                     {
                         .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                             piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -338,7 +390,7 @@ void rotatePiece(Piece * piece) {
                 int offsetsY[3] = {0, 0, 1};
             
                 for (int i = 0; i < 3; i++) {
-                    piece->blocks[i] = (Block) 
+                    piece->blocks[i] = (Block_t) 
                     {
                         .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                             piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -356,7 +408,7 @@ void rotatePiece(Piece * piece) {
                 int offsetsY[3] = {-1, 1, 1};
             
                 for (int i = 0; i < 3; i++) {
-                    piece->blocks[i] = (Block) 
+                    piece->blocks[i] = (Block_t) 
                     {
                         .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
                             piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
@@ -369,65 +421,248 @@ void rotatePiece(Piece * piece) {
             }
         }
         break;
-        default: 
+
+        case L_SHAPED: 
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+            
+            if (piece->rotation == 0) {    
+                
+                int offsetsX[3] = {-1, 1, 1};
+                int offsetsY[3] = {0, 0, -1};
+                
+                for (int i = 0; i < 3; i++) {
+                    piece->blocks[i] = (Block_t) 
+                    {
+                        .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                            piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                            GRID_SQUARE_SIZE, 
+                            GRID_SQUARE_SIZE},
+                            .color = ORANGE,
+                            .outlineColor = BROWN 
+                    };
+                }
+            }
+                
+            else if (piece->rotation == 90) {    
+                
+                int offsetsX[3] = {0, 0, 1};
+                int offsetsY[3] = {-1, 1, 1};
+                
+                for (int i = 0; i < 3; i++) {
+                    piece->blocks[i] = (Block_t) 
+                    {
+                        .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                            piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                            GRID_SQUARE_SIZE, 
+                            GRID_SQUARE_SIZE},
+                            .color = ORANGE,
+                            .outlineColor = BROWN 
+                        };
+                    }
+                }
+                
+                else if (piece->rotation == 180) {    
+                    
+                    int offsetsX[3] = {-1, -1, 1};
+                    int offsetsY[3] = {1, 0, 0};
+                    
+                    for (int i = 0; i < 3; i++) {
+                        
+                        piece->blocks[i] = (Block_t) 
+                        {   
+                            .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                                piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                                GRID_SQUARE_SIZE, 
+                                GRID_SQUARE_SIZE},
+                                .color = ORANGE,
+                                .outlineColor = BROWN 
+                        };
+                    }
+                }
+            
+                else if (piece->rotation == 270) {    
+                    
+                    int offsetsX[3] = {-1, 0, 0};
+                    int offsetsY[3] = {-1, -1, 1};
+                    
+                    for (int i = 0; i < 3; i++) {
+
+                        piece->blocks[i] = (Block_t) 
+                        {
+                            .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                                piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                                GRID_SQUARE_SIZE, 
+                                GRID_SQUARE_SIZE},
+                                .color = ORANGE,
+                                .outlineColor = BROWN 
+                        };
+                    }
+                }
+            }
             break;
+
+        case O_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0 ||piece->rotation == 90 || piece->rotation == 180 || piece->rotation == 270) {
+                
+                int offsetsX[3] = {0, 1, 1};
+                int offsetsY[3] = {1, 0, 1};
+
+                for (int i = 0; i < 3; i++) {
+                    
+                    piece->blocks[i] = (Block_t) 
+                    {
+                        .rect = {piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                            piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                            GRID_SQUARE_SIZE, 
+                            GRID_SQUARE_SIZE},
+                            .color = YELLOW,
+                            .outlineColor = BROWN 
+                    };
+                }
+            }
+            break;
+        }
+        default: 
+        break;
     }
     return;
 }
 
-void movementInput(Piece * piece) {
+void GetMovementInput(Piece_t * piece, Block_t * head) {
     
+    Block_t * pBlock;
+
     for (int i = 0; i < 4; i++) {
+
         piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
         piece->blocks[i].lastPosition.y = piece->blocks[i].rect.y;
     }
 
     if (piece->isPlaced == false) {
         
+        if (IsKeyPressed(KEY_SPACE)) {
+            
+            if (head->next == NULL) {
+                
+                bool canMove = true;
+                
+                while (canMove) {
+                
+                    for (int i = 0; i < 4; i++) {
+                
+                        if (piece->blocks[i].rect.y == GRID_FLOOR - GRID_SQUARE_SIZE) {
+                
+                            canMove = false;
+                            break;
+                        } 
+                    }
+
+                    if (canMove == false) {break;}
+
+                    for (int i = 0; i < 4; i++) {
+                
+                        piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
+                    } 
+
+                    piece->y += GRID_SQUARE_SIZE;
+                }
+            }
+            
+            else {
+
+                bool canMove = true;
+
+                while (canMove) {
+    
+                    for (int i = 0; i < 4; i++) {
+                        
+                        pBlock = head->next;
+                        
+                        while (pBlock != NULL) {
+                            
+                            if (pBlock->rect.x == piece->blocks[i].rect.x) {
+                                
+                                if (pBlock->rect.y == piece->blocks[i].rect.y + GRID_SQUARE_SIZE) {
+                                
+                                    canMove = false;    
+                                    break;
+                                }
+                            
+                            }
+                            pBlock = pBlock->next;
+                        }
+                    }
+    
+                    for (int i = 0; i < 4; i++) {
+                        
+                        if (piece->blocks[i].rect.y + GRID_SQUARE_SIZE == GRID_FLOOR) {
+                            canMove = false;
+                        }
+                    }
+
+                    if (canMove == true) {
+    
+                        for (int i = 0; i < 4; i++) {
+    
+                            piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
+                        }
+                        piece->y += GRID_SQUARE_SIZE;
+                    }
+                }            
+            }
+        }
+
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
             
-            rotatePiece(piece);
+            RotatePiece(piece);
             return;
         }
 
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
             
             for (int i = 0; i < 4; i++) {
+
                 piece->blocks[i].rect.x += GRID_SQUARE_SIZE;
             }
             piece->x += GRID_SQUARE_SIZE;    
 
-            if (piece->isPlaced) {return;}
             return;
         }
         
         if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
             
             for (int i = 0; i < 4; i++) {
+            
                 piece->blocks[i].rect.x -= GRID_SQUARE_SIZE;
             }
             piece->x -= GRID_SQUARE_SIZE;
 
-            if (piece->isPlaced) {return;}
             return;
         }
         
         if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
             
             for (int i = 0; i < 4; i++) {
+
                 piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
             }
             piece->y += GRID_SQUARE_SIZE;
             
-            if (piece->isPlaced) {return;}
             return;
         }
     }
 }
 
-void movePieceDown(Piece * piece) {
+void CurrentPieceGravity(Piece_t * piece) {
     
     for (int i = 0; i < 4; i++) {
+        
         piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
         piece->blocks[i].lastPosition.y = piece->blocks[i].rect.y;
     }
@@ -435,27 +670,31 @@ void movePieceDown(Piece * piece) {
     if (piece->isPlaced == false) {
         
         for (int i = 0; i < 4; i++) {        
+        
             piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
         }
         piece->y += GRID_SQUARE_SIZE;
     }
 }
 
-void drawPiece(Piece * piece) {
+void DrawCurrentPiece(Piece_t * piece) {
     
     for (int i = 0; i < 4; i++) {
+        
         DrawRectangleRec(piece->blocks[i].rect, piece->blocks[i].color);
-        DrawRectangleLines(piece->blocks[i].rect.x, piece->blocks[i].rect.y, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, piece->blocks[i].outlineColor);
+        
+        DrawRectangleLines(piece->blocks[i].rect.x, piece->blocks[i].rect.y, 
+            GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, piece->blocks[i].outlineColor);
     }
 }
 
-bool detectCombos(Block * head, bool * comboLines) {
+bool DetectCombos(Block_t * head, bool * comboLines) {
     
     if (head == NULL) {return false;}
 
     bool returnValue = false;
     int counter;
-    Block * pBlock = head->next;
+    Block_t * pBlock = head->next;
 
     for (int i = 0; i < GRID_HEIGHT; i++) {
 
@@ -476,12 +715,12 @@ bool detectCombos(Block * head, bool * comboLines) {
     return returnValue;
 }
 
-void removeLines(Block * head, bool * comboLines) {
+void LineExplosions(Block_t * head, bool * comboLines) {
 
     if (head == NULL) {return;}
     
-    Block * pBlock;
-    Block * temp;
+    Block_t * pBlock;
+    Block_t * temp;
     int lastLine = 0;
     int comboCounter = 0;
 
@@ -495,7 +734,9 @@ void removeLines(Block * head, bool * comboLines) {
 
             pBlock = head;
             while (pBlock->next != NULL) {
+
                 if (pBlock->next->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {
+                
                     temp = pBlock->next;
                     pBlock->next = pBlock->next->next;
                     free(temp);            
@@ -507,64 +748,83 @@ void removeLines(Block * head, bool * comboLines) {
 
     pBlock = head->next;
     while (pBlock != NULL) {
+
         if (pBlock->rect.y < GRID_STARTING_Y + lastLine * GRID_SQUARE_SIZE) {
+        
             pBlock->rect.y += GRID_SQUARE_SIZE * comboCounter;
         }
         pBlock = pBlock->next;
     }
 }
 
+void FreeMemory(Block_t * head, Piece_t * piece) {
+    
+    Block_t * temp;
+
+    if (piece != NULL) {free(piece);}
+
+    while (head != NULL) {
+
+        temp = head;
+        head = head->next;
+        free(temp);
+        puts("Block_t freed");
+    }
+
+    free(head);
+    puts("Head freed");
+}
+
 int main(void) {
     
-    Block * head = malloc(sizeof(Block));
-    head->next = NULL;
-    
+    Block_t * head = malloc(sizeof(Block_t));
     bool comboLines[GRID_HEIGHT] = {false};
+    Piece_t * currentPiece;
+
+    int frame = 0;
+    int types[4] = {I_SHAPED, J_SHAPED, L_SHAPED, O_SHAPED};
+    int typeIndex = 0;
+
     float speed = 1;
     float skipEveryFrame = TARGET_FPS / speed;
-    int frame = 0;
 
-    int types[2] = {I_SHAPED, J_SHAPED};
-    int typeIndex = 0;
-    
-    Piece * currentPiece;
-    
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "TETRIS");
     SetTargetFPS(TARGET_FPS);        
     
-    currentPiece = spawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
+    head->next = NULL;
+    currentPiece = SpawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
     
     //GAMELOOP
     while (!WindowShouldClose()) {
-        
+
         //UPDATE     
         frame += 1;
-        movementInput(currentPiece);
-        applyCollisionsBlocks(currentPiece, head);
-        applyCollisionsWalls(currentPiece);
+        GetMovementInput(currentPiece, head);
+        ApplyCollisionsBlocks(currentPiece, head);
+        ApplyCollisionsWalls(currentPiece);
         
         if (frame >= skipEveryFrame) {
             
             frame = 0;
             
-            movePieceDown(currentPiece);
-            applyCollisionsBlocks(currentPiece, head);
-            applyCollisionsWalls(currentPiece);
+            CurrentPieceGravity(currentPiece);
+            ApplyCollisionsBlocks(currentPiece, head);
+            ApplyCollisionsWalls(currentPiece);
             
             if (currentPiece->isPlaced) {
                 
                 typeIndex += 1;
-                if (typeIndex > 1) {
+                if (typeIndex > 3) {
                     typeIndex = 0;
                 }
                 
-                savePlacedBlocks(currentPiece, head);
+                SavePlacedBlocks(currentPiece, head);
                 
-                if (detectCombos(head, comboLines)) {
-                    removeLines(head, comboLines);
+                if (DetectCombos(head, comboLines)) {
+                    LineExplosions(head, comboLines);
                 }
 
-                currentPiece = spawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
+                currentPiece = SpawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
         }
 
@@ -572,27 +832,15 @@ int main(void) {
         BeginDrawing();
 
         ClearBackground(DARKPURPLE);
-        drawGrid();
-        drawPlacedBlocks(head);
-        drawPiece(currentPiece);
+        DrawTetrisGrid();
+        DrawPlacedBlocks(head);
+        DrawCurrentPiece(currentPiece);
 
         EndDrawing();   
 
     }
     //DE-INITIALIZATION
     CloseWindow();
-    if (currentPiece != NULL) {
-        free(currentPiece);
-    }
-
-    Block * temp;
-    while (head != NULL) {
-        temp = head;
-        head = head->next;
-        free(temp);
-        puts("Block freed");
-    }
-    free(head);
-    puts("Head freed");
+    FreeMemory(head, currentPiece);
     return 0;
 }
