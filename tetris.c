@@ -77,7 +77,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
         case I_SHAPED:
         {
             newPiece->blocks[3].color = BLUE;
-            newPiece->blocks[3].outlineColor = DARKBLUE;
+            newPiece->blocks[3].outlineColor = BLACK;
             
             int offsetsX[3] = {-1, 1, 2};
             int offsetsY[3] = {0, 0, 0};
@@ -90,7 +90,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
                         GRID_SQUARE_SIZE, 
                         GRID_SQUARE_SIZE},
                     .color = BLUE,
-                    .outlineColor = DARKBLUE 
+                    .outlineColor = BLACK 
                 };
             }
             break;
@@ -121,7 +121,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
         case L_SHAPED:
         {
             newPiece->blocks[3].color = ORANGE;
-            newPiece->blocks[3].outlineColor = BROWN;
+            newPiece->blocks[3].outlineColor = BLACK;
             
             int offsetsX[3] = {-1, 1, 1};
             int offsetsY[3] = {0, 0, -1};
@@ -134,7 +134,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
                         GRID_SQUARE_SIZE, 
                         GRID_SQUARE_SIZE},
                     .color = ORANGE,
-                    .outlineColor = BROWN 
+                    .outlineColor = BLACK 
                 };
             }
             break;
@@ -143,7 +143,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
         case O_SHAPED:
         {
             newPiece->blocks[3].color = YELLOW;
-            newPiece->blocks[3].outlineColor = BROWN;
+            newPiece->blocks[3].outlineColor = BLACK;
             
             int offsetsX[3] = {0, 1, 1};
             int offsetsY[3] = {1, 0, 1};
@@ -156,7 +156,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
                         GRID_SQUARE_SIZE, 
                         GRID_SQUARE_SIZE},
                     .color = YELLOW,
-                    .outlineColor = BROWN 
+                    .outlineColor = BLACK 
                 };
             }
             break;
@@ -165,7 +165,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
         case S_SHAPED:
         {
             newPiece->blocks[3].color = GREEN;
-            newPiece->blocks[3].outlineColor = DARKGREEN;
+            newPiece->blocks[3].outlineColor = BLACK;
             
             int offsetsX[3] = {-1, 0, 1};
             int offsetsY[3] = {1, 1, 0};
@@ -178,7 +178,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
                         GRID_SQUARE_SIZE, 
                         GRID_SQUARE_SIZE},
                     .color = GREEN,
-                    .outlineColor = DARKGREEN 
+                    .outlineColor = BLACK 
                 };
             }
             break;
@@ -187,7 +187,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
         case Z_SHAPED:
         {
             newPiece->blocks[3].color = RED;
-            newPiece->blocks[3].outlineColor = MAROON;
+            newPiece->blocks[3].outlineColor = BLACK;
             
             int offsetsX[3] = {-1, 0, 1};
             int offsetsY[3] = {0, 1, 1};
@@ -200,7 +200,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
                         GRID_SQUARE_SIZE, 
                         GRID_SQUARE_SIZE},
                     .color = RED,
-                    .outlineColor = MAROON 
+                    .outlineColor = BLACK 
                 };
             }
             break;
@@ -209,7 +209,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
         case T_SHAPED:
         {
             newPiece->blocks[3].color = PURPLE;
-            newPiece->blocks[3].outlineColor = DARKPURPLE;
+            newPiece->blocks[3].outlineColor = BLACK;
             
             int offsetsX[3] = {0, -1, 1};
             int offsetsY[3] = {-1, 0, 0};
@@ -222,7 +222,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
                         GRID_SQUARE_SIZE, 
                         GRID_SQUARE_SIZE},
                     .color = PURPLE,
-                    .outlineColor = DARKPURPLE
+                    .outlineColor = BLACK
                 };
             }
             break;
@@ -1020,12 +1020,13 @@ void FreeMemory(Block_t * head, Piece_t * piece) {
 }
 
 int main(void) {
-    
+
     Block_t * head = malloc(sizeof(Block_t));
     bool comboLines[GRID_HEIGHT] = {false};
     bool isGameOver = false;
     Piece_t * currentPiece;
-
+    
+    int score = 0;
     int frame = 0;
     int types[7] = {I_SHAPED, J_SHAPED, L_SHAPED, O_SHAPED, S_SHAPED, Z_SHAPED, T_SHAPED};
     int typeIndex = 0;
