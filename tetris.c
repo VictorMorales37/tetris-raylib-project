@@ -294,7 +294,37 @@ void ApplyCollisionsBlocks(Piece_t * piece, Block_t * head) {
     }
 }
 
-void RotatePiece(Piece_t * piece) {
+void RotatePiece(Piece_t * piece, Block_t * head) {
+
+    Block_t *pBlock = head->next;
+
+    bool leftBlocked;
+    bool rightBlocked;
+
+    if (head->next != NULL) {
+        
+        for (int i = 0; i < 4; i++) {
+        
+            while (pBlock != NULL) {
+                
+                if (pBlock->rect.y == piece->blocks[i].rect.y) {
+
+                    if (pBlock->rect.x == piece->blocks[i].rect.x - GRID_SQUARE_SIZE) {
+                        leftBlocked = true;
+                    }
+
+                    if (pBlock->rect.x == piece->blocks[i].rect.x + GRID_SQUARE_SIZE) {
+                        rightBlocked = true;
+                    }
+                }
+                pBlock = pBlock->next;
+            }
+        }
+    }
+
+    if (leftBlocked || rightBlocked) {
+        return;
+    }
 
     piece->rotation = (piece->rotation + 90) % 360;
 
@@ -620,7 +650,7 @@ void GetMovementInput(Piece_t * piece, Block_t * head) {
 
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
             
-            RotatePiece(piece);
+            RotatePiece(piece, head);
             return;
         }
 
@@ -757,6 +787,25 @@ void LineExplosions(Block_t * head, bool * comboLines) {
     }
 }
 
+bool IsGameOver(Block_t * head) {
+    
+    Block_t * pBlock = head->next;
+
+    while (pBlock != NULL) {
+        
+        if (pBlock->rect.y < GRID_STARTING_Y) {return true;}
+        pBlock = pBlock->next;
+    }
+
+    return false;
+}
+
+void DrawGameOverMessage() {
+
+    ClearBackground(DARKPURPLE);
+    DrawText("Game Over", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 50, WHITE);
+}
+
 void FreeMemory(Block_t * head, Piece_t * piece) {
     
     Block_t * temp;
@@ -768,17 +817,18 @@ void FreeMemory(Block_t * head, Piece_t * piece) {
         temp = head;
         head = head->next;
         free(temp);
-        puts("Block_t freed");
+        puts("Block_t freed.");
     }
 
     free(head);
-    puts("Head freed");
+    puts("Head freed.");
 }
 
 int main(void) {
     
     Block_t * head = malloc(sizeof(Block_t));
     bool comboLines[GRID_HEIGHT] = {false};
+    bool isGameOver = false;
     Piece_t * currentPiece;
 
     int frame = 0;
@@ -792,7 +842,7 @@ int main(void) {
     SetTargetFPS(TARGET_FPS);        
     
     head->next = NULL;
-    currentPiece = SpawnPiece(I_SHAPED, (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
+    currentPiece = SpawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
     
     //GAMELOOP
     while (!WindowShouldClose()) {
@@ -824,6 +874,10 @@ int main(void) {
                     LineExplosions(head, comboLines);
                 }
 
+                if (IsGameOver(head)) {
+                    isGameOver = true;
+                }
+
                 currentPiece = SpawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
         }
@@ -831,10 +885,15 @@ int main(void) {
         //DRAW
         BeginDrawing();
 
-        ClearBackground(DARKPURPLE);
-        DrawTetrisGrid();
-        DrawPlacedBlocks(head);
-        DrawCurrentPiece(currentPiece);
+        if (isGameOver) {DrawGameOverMessage();}
+
+        else {
+            
+            ClearBackground(DARKPURPLE);
+            DrawTetrisGrid();
+            DrawPlacedBlocks(head);
+            DrawCurrentPiece(currentPiece);
+        }
 
         EndDrawing();   
 
