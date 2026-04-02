@@ -48,6 +48,17 @@ typedef struct Piece_t {
 
 } Piece_t;
 
+void ShuffleArray(int * array, int size) {
+    
+    for (int i = size - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
 void DrawTetrisGrid() {
     
     for (int i = 0; i < GRID_WIDTH; i++) {
@@ -1056,12 +1067,16 @@ int main(void) {
 
     int types[7] = {I_SHAPED, J_SHAPED, L_SHAPED, O_SHAPED, S_SHAPED, Z_SHAPED, T_SHAPED};
     int typeIndex = 0;
-
+    
     float speed = 1;
     float skipEveryFrame = TARGET_FPS / speed;
+    
+    srand(time(NULL));
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "TETRIS");
     SetTargetFPS(TARGET_FPS);        
+
+    ShuffleArray(types, sizeof(types) / sizeof(types[0]));
     
     head->next = NULL;
     currentPiece = SpawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
@@ -1088,6 +1103,7 @@ int main(void) {
                 typeIndex += 1;
                 if (typeIndex > 6) {
                     typeIndex = 0;
+                    ShuffleArray(types, sizeof(types) / sizeof(types[0]));
                 }
                 
                 SavePlacedBlocks(currentPiece, head);
@@ -1112,7 +1128,6 @@ int main(void) {
         else {
             
             ClearBackground(DARKPURPLE);
-
             DrawInfo(score, level);
             DrawTetrisGrid();
             DrawPlacedBlocks(head);
@@ -1120,7 +1135,6 @@ int main(void) {
         }
 
         EndDrawing();   
-
     }
     //DE-INITIALIZATION
     CloseWindow();
