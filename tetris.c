@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
@@ -59,6 +60,24 @@ void DrawTetrisGrid() {
         }
     }
 }   
+
+void DrawInfo(int score, int level) {
+    
+    char scoreText[20] = "Score: ";
+    char scoreValue[6] = "";
+    
+    char levelText[20] = "Level: ";
+    char levelValue[2] = "";
+
+    sprintf(scoreValue, "%d", score);
+    strcat(scoreText, scoreValue);
+
+    sprintf(levelValue, "%d", level);
+    strcat(levelText, levelValue);
+
+    DrawText(scoreText, 50, 10, 50, WHITE);
+    DrawText(levelText , 50, 50, 50, WHITE);
+}
 
 Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
     
@@ -940,12 +959,13 @@ bool DetectCombos(Block_t * head, bool * comboLines) {
     return returnValue;
 }
 
-void LineExplosions(Block_t * head, bool * comboLines) {
+void LineExplosions(Block_t * head, bool * comboLines, int * score, int level) {
 
     if (head == NULL) {return;}
     
     Block_t * pBlock;
     Block_t * temp;
+
     int lastLine = 0;
     int comboCounter = 0;
 
@@ -980,6 +1000,8 @@ void LineExplosions(Block_t * head, bool * comboLines) {
         }
         pBlock = pBlock->next;
     }
+
+    *score += comboCounter * 300 * (level + 1);
 }
 
 bool IsGameOver(Block_t * head) {
@@ -1022,12 +1044,16 @@ void FreeMemory(Block_t * head, Piece_t * piece) {
 int main(void) {
 
     Block_t * head = malloc(sizeof(Block_t));
-    bool comboLines[GRID_HEIGHT] = {false};
-    bool isGameOver = false;
     Piece_t * currentPiece;
     
+    bool comboLines[GRID_HEIGHT] = {false};
+    bool isGameOver = false;
+    
     int score = 0;
+    int level = 1;
+
     int frame = 0;
+
     int types[7] = {I_SHAPED, J_SHAPED, L_SHAPED, O_SHAPED, S_SHAPED, Z_SHAPED, T_SHAPED};
     int typeIndex = 0;
 
@@ -1067,7 +1093,7 @@ int main(void) {
                 SavePlacedBlocks(currentPiece, head);
                 
                 if (DetectCombos(head, comboLines)) {
-                    LineExplosions(head, comboLines);
+                    LineExplosions(head, comboLines, &score, level);
                 }
 
                 if (IsGameOver(head)) {
@@ -1086,6 +1112,8 @@ int main(void) {
         else {
             
             ClearBackground(DARKPURPLE);
+
+            DrawInfo(score, level);
             DrawTetrisGrid();
             DrawPlacedBlocks(head);
             DrawCurrentPiece(currentPiece);
