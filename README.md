@@ -16,11 +16,11 @@ Current features:
 - Piece collisions
 - Line combos
 - "Game Over" possibility
+- Tetris' Signature random piece spawning
 
 Missing:
 
 - Main menu
 - Settings menu
-- Tetris' Signature random piece spawning
 - Scoring system
 - Music 

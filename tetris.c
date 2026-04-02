@@ -1,18 +1,23 @@
 #include "raylib.h"
 #include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include <time.h>
+
+#define TARGET_FPS 60
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT WINDOW_WIDTH * 2
+
 #define GRID_SQUARE_SIZE 65
-#define TARGET_FPS 60
+
 #define GRID_WIDTH 10
 #define GRID_HEIGHT 20
+
 #define GRID_STARTING_X (WINDOW_WIDTH / 2) - (GRID_SQUARE_SIZE * GRID_WIDTH) / 2
 #define GRID_STARTING_Y (WINDOW_HEIGHT / 2) - (GRID_SQUARE_SIZE * GRID_HEIGHT) / 2
+
 #define GRID_WALL_RIGHT (GRID_STARTING_X + (GRID_WIDTH * GRID_SQUARE_SIZE))
 #define GRID_FLOOR (GRID_STARTING_Y + (GRID_HEIGHT * GRID_SQUARE_SIZE))
 
@@ -1031,7 +1036,7 @@ bool IsGameOver(Block_t * head) {
 void DrawGameOverMessage() {
 
     ClearBackground(DARKPURPLE);
-    DrawText("Game Over", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 100, WHITE);
+    DrawText("Game Over", (WINDOW_WIDTH / 2) - MeasureText("Game Over", 100) / 2, WINDOW_HEIGHT / 2, 100, WHITE);
 }
 
 void FreeMemory(Block_t * head, Piece_t * piece) {
@@ -1101,20 +1106,19 @@ int main(void) {
             if (currentPiece->isPlaced) {
                 
                 typeIndex += 1;
+
                 if (typeIndex > 6) {
+
                     typeIndex = 0;
+
                     ShuffleArray(types, sizeof(types) / sizeof(types[0]));
                 }
                 
                 SavePlacedBlocks(currentPiece, head);
                 
-                if (DetectCombos(head, comboLines)) {
-                    LineExplosions(head, comboLines, &score, level);
-                }
+                if (DetectCombos(head, comboLines)) {LineExplosions(head, comboLines, &score, level);}
 
-                if (IsGameOver(head)) {
-                    isGameOver = true;
-                }
+                if (IsGameOver(head)) {isGameOver = true;}
 
                 currentPiece = SpawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
