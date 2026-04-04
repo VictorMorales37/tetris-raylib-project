@@ -3,19 +3,25 @@ Tetris game recreation in C using the Raylib framework/library.
 
 To compile and run, follow these steps:
 
-- Install raylib here: https://github.com/raysan5/raylib/releases
-- After raylib setup, you can compile the source code with: gcc tetris.c -o tetris -lraylib -lm -ldl -lpthread -lGL -lX11
+- Linux: Simply run the executable main in /output
+- Windows: WIP
 
 Current features:
 
-- Piece spawning system
-- Rotation movement
-- Vertical movement (by gravity and player input) 
-- Horizontal movement
-- Piece placing
-- Piece collisions
-- Line combos
-- "Game Over" possibility
-- Tetris' Signature random piece spawning
-- Scoring system
-- Level system
+- Piece spawning system;
+- Rotation movement;
+- Vertical movement (by gravity and player input);
+- Horizontal movement;
+- Piece placing;
+- Piece collisions;
+- Line combos;
+- "Game Over" possibility;
+- Tetris' Signature random piece spawning;
+- Scoring system;
+- Level system;
+
+To do: 
+
+- Main menu
+- Game ending at a certain level
+- Ghost pieces
