@@ -266,7 +266,7 @@ Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
             break;
     }
 
-    puts("Piece_t spawned.");
+    puts("Piece spawned.");
     return newPiece;            
 }
 
@@ -948,7 +948,7 @@ void DrawCurrentPiece(Piece_t * piece) {
     }
 }
 
-bool DetectCombos(Block_t * head, bool * comboLines) {
+bool DetectCombos(Block_t * head, bool * comboLines, int * comboCounter) {
     
     if (head == NULL) {return false;}
 
@@ -970,6 +970,7 @@ bool DetectCombos(Block_t * head, bool * comboLines) {
             puts("Combo detected.");
             comboLines[i] = true;
             returnValue = true;
+            *comboCounter += 1;
         }
     }
     return returnValue;
@@ -1039,6 +1040,17 @@ void DrawGameOverMessage() {
     DrawText("Game Over", (WINDOW_WIDTH / 2) - MeasureText("Game Over", 100) / 2, WINDOW_HEIGHT / 2, 100, WHITE);
 }
 
+void UpdateLevel(int * level, int comboCounter, float * speed, int * lastCounter) {
+
+    if (comboCounter != *lastCounter && comboCounter % 10 == 0) {
+     
+        *speed += 0.5;
+        *level += 1;
+    }
+
+    *lastCounter = comboCounter;
+}
+
 void FreeMemory(Block_t * head, Piece_t * piece) {
     
     Block_t * temp;
@@ -1050,7 +1062,7 @@ void FreeMemory(Block_t * head, Piece_t * piece) {
         temp = head;
         head = head->next;
         free(temp);
-        puts("Block_t freed.");
+        puts("Block freed.");
     }
 
     free(head);
@@ -1067,6 +1079,8 @@ int main(void) {
     
     int score = 0;
     int level = 1;
+    int comboCounter = 0;
+    int tempCounter = 0;
 
     int frame = 0;
 
@@ -1094,7 +1108,7 @@ int main(void) {
         GetMovementInput(currentPiece, head);
         ApplyCollisionsBlocks(currentPiece, head);
         ApplyCollisionsWalls(currentPiece);
-        
+
         if (frame >= skipEveryFrame) {
             
             frame = 0;
@@ -1105,21 +1119,30 @@ int main(void) {
             
             if (currentPiece->isPlaced) {
                 
+                
                 typeIndex += 1;
-
+                
                 if (typeIndex > 6) {
-
+                    
                     typeIndex = 0;
-
+                    
                     ShuffleArray(types, sizeof(types) / sizeof(types[0]));
                 }
                 
                 SavePlacedBlocks(currentPiece, head);
                 
-                if (DetectCombos(head, comboLines)) {LineExplosions(head, comboLines, &score, level);}
-
+                if (DetectCombos(head, comboLines, &comboCounter)) {
+                    
+                    LineExplosions(head, comboLines, &score, level);
+                    
+                    UpdateLevel(&level, comboCounter, &speed, &tempCounter);
+                    
+                    skipEveryFrame = TARGET_FPS / speed;
+                }
+                
+                
                 if (IsGameOver(head)) {isGameOver = true;}
-
+                
                 currentPiece = SpawnPiece(types[typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
             }
         }
