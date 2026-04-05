@@ -1034,11 +1034,23 @@ bool IsGameOver(Block_t * head) {
     return false;
 }
 
-void DrawGameOverMessage() {
+void DrawGameOverMessage(int score) {
 
-    ClearBackground(DARKPURPLE);
-    DrawText("Game Over", (WINDOW_WIDTH / 2) - MeasureText("Game Over", 100) / 2, WINDOW_HEIGHT / 2, 100, WHITE);
+    char scoreString[30] = "Score: "; 
+    char scoreValue[20] = "";
+
+    sprintf(scoreValue, "%d", score);
+    strcat(scoreString, scoreValue);
+
+    ClearBackground(DARKBLUE);
+    DrawText("Game Over", (WINDOW_WIDTH / 2) - MeasureText("Game Over", 100) / 2, 
+    WINDOW_HEIGHT / 2, 100, WHITE);
+
+    DrawText(scoreString, (WINDOW_WIDTH / 2) - MeasureText(scoreString, 50) / 2, 
+    WINDOW_HEIGHT / 2 + 200, 50, WHITE);
+
 }
+
 
 void UpdateLevel(int * level, int comboCounter, float * speed, int * lastCounter) {
 
@@ -1150,11 +1162,11 @@ int main(void) {
         //DRAW
         BeginDrawing();
 
-        if (isGameOver) {DrawGameOverMessage();}
+        if (isGameOver) {DrawGameOverMessage(score);}
 
         else {
             
-            ClearBackground(DARKPURPLE);
+            ClearBackground(DARKBLUE);
             DrawInfo(score, level);
             DrawTetrisGrid();
             DrawPlacedBlocks(head);

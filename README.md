@@ -1,13 +1,14 @@
-# tetris-raylib-project
-Tetris game recreation in C using the Raylib framework/library.
+# Raylib Tetris Project
+This project consists of a Tetris clone built with C and the Raylib framework.
 
+## Building
 To compile and run, follow these steps:
 
-- Linux: Simply run the executable main in /output
+- Linux: in the project directory, run `make` and/or execute "main".
 - Windows: WIP
+- MacOS: never?
 
-Current features:
-
+## Implemented
 - Piece spawning system;
 - Rotation movement;
 - Vertical movement (by gravity and player input);
@@ -20,8 +21,8 @@ Current features:
 - Scoring system;
 - Level system;
 
-To do: 
-
-- Main menu
-- Game ending at a certain level
-- Ghost pieces
+## To-do
+- Main menu;
+- Game ending at a certain level;
+- Piece placement preview;
+- Next piece preview;
