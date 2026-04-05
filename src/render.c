@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "render.h"
 #include "raylib.h"
 #include "config.h"

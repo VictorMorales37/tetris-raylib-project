@@ -19,5 +19,19 @@ This project consists of a Tetris clone built with C and the Raylib framework.
 ## How to run
 To compile and run, follow these steps:
 
-- Linux: in the project directory, run `make` and then `./output/main`
-- Windows: WIP
+### Linux
+Step 1: Install GCC if not already installed.  
+Step 2: Run: 
+```bash
+    make
+    ./output/main
+```
+
+### Windows
+Step 1: Install MinGW if not already installed.
+Setp 2: Open cmd or PowerShell in the project folder and run:
+
+```bash
+    mingw32-make
+    tetris.exe
+```
