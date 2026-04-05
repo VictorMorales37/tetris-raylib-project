@@ -9,6 +9,7 @@ To compile and run, follow these steps:
 - MacOS: never?
 
 ## Implemented
+- Main menu;
 - Piece spawning system;
 - Rotation movement;
 - Vertical movement (by gravity and player input);
@@ -20,9 +21,8 @@ To compile and run, follow these steps:
 - Tetris' Signature random piece spawning;
 - Scoring system;
 - Level system;
+- Game ending at a certain level;
 
 ## To-do
-- Main menu;
-- Game ending at a certain level;
 - Piece placement preview;
 - Next piece preview;

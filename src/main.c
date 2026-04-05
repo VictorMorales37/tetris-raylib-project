@@ -64,6 +64,18 @@ void ShuffleArray(int * array, int size) {
     }
 }
 
+void DrawMainMenu(Rectangle playButton) {
+
+    ClearBackground(DARKPURPLE);
+    
+    DrawText("TETRIS", (WINDOW_WIDTH / 2) - (MeasureText("TETRIS", 150) / 2), 150, 150, WHITE);
+
+    DrawRectangleRec(playButton, WHITE);
+    
+    DrawText("Play", WINDOW_WIDTH / 2 - MeasureText("Play", 50) / 2, 
+    playButton.y + playButton.height / 4, 50, DARKBLUE);
+}
+
 void DrawTetrisGrid() {
     
     for (int i = 0; i < GRID_WIDTH; i++) {
@@ -799,6 +811,21 @@ void RotatePiece(Piece_t * piece, Block_t * head) {
     return;
 }
 
+bool GetMouseInput(Rectangle button) {
+
+    Vector2 mouse = GetMousePosition();
+
+    if (CheckCollisionPointRec(mouse, button)) {
+        
+        DrawRectangleLinesEx(button, 5, DARKBLUE);
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void GetMovementInput(Piece_t * piece, Block_t * head) {
     
     Block_t * pBlock;
@@ -1093,11 +1120,12 @@ int main(void) {
     
     bool comboLines[GRID_HEIGHT] = {false};
     bool isGameOver = false;
+    bool gameStarted = false;
     
     int score = 0;
     int level = 1;
     int comboCounter = 0;
-
+    
     int frame = 0;
 
     int types[7] = {I_SHAPED, J_SHAPED, L_SHAPED, O_SHAPED, S_SHAPED, Z_SHAPED, T_SHAPED};
@@ -1105,12 +1133,18 @@ int main(void) {
     
     float speed = 1;
     float skipEveryFrame = TARGET_FPS / speed;
+
+    Rectangle playButton;
+    playButton.width = 300;
+    playButton.height = 80;
+    playButton.x = WINDOW_WIDTH / 2 - playButton.width / 2;
+    playButton.y = WINDOW_HEIGHT / 2 - 300;
     
     srand(time(NULL));
-
+    
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "TETRIS");
     SetTargetFPS(TARGET_FPS);        
-
+    
     ShuffleArray(types, sizeof(types) / sizeof(types[0]));
     
     head->next = NULL;
@@ -1119,8 +1153,29 @@ int main(void) {
     //GAMELOOP
     while (!WindowShouldClose()) {
 
+        //MAIN MENU
+        if (level == 20) {
+            isGameOver = true;
+        }
+
+        if (gameStarted == false) {
+            
+            BeginDrawing();
+            DrawMainMenu(playButton);
+            
+            if (GetMouseInput(playButton)) {
+                gameStarted = true;
+            }
+            else {
+
+                EndDrawing();
+                continue;
+            }
+        }
+
         //UPDATE     
         frame += 1;
+
         GetMovementInput(currentPiece, head);
         ApplyCollisionsBlocks(currentPiece, head);
         ApplyCollisionsWalls(currentPiece);
@@ -1163,20 +1218,23 @@ int main(void) {
         }
 
         //DRAW
-        BeginDrawing();
+        if (gameStarted) {
 
-        if (isGameOver) {DrawGameOverMessage(score);}
-
-        else {
+            BeginDrawing();
             
-            ClearBackground(DARKBLUE);
-            DrawInfo(score, level, comboCounter);
-            DrawTetrisGrid();
-            DrawPlacedBlocks(head);
-            DrawCurrentPiece(currentPiece);
+            if (isGameOver) {DrawGameOverMessage(score);}
+            
+            else {
+                
+                ClearBackground(DARKBLUE);
+                DrawInfo(score, level, comboCounter);
+                DrawTetrisGrid();
+                DrawPlacedBlocks(head);
+                DrawCurrentPiece(currentPiece);        
+            }
+            
+            EndDrawing();   
         }
-
-        EndDrawing();   
     }
     //DE-INITIALIZATION
     CloseWindow();
