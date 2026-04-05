@@ -64,21 +64,22 @@ void InitializeGame(Game_t *game) {
     }
     game->typeIndex = 0;
 
-    game->currentPiece = SpawnPiece(game->types[game->typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
     game->speed = 1.0f;
     game->skipEveryFrame = TARGET_FPS / game->speed;
-
+    
     game->playButton.width = 300;
     game->playButton.height = 80;
     game->playButton.x = WINDOW_WIDTH / 2 - game->playButton.width / 2;
     game->playButton.y = WINDOW_HEIGHT / 2 - 300;
     
     srand(time(NULL));
-
+    
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "TETRIS");
     SetTargetFPS(TARGET_FPS);        
     
     ShuffleArray(game->types, PIECE_COUNT);
+    
+    game->currentPiece = SpawnPiece(game->types[game->typeIndex], (WINDOW_WIDTH / 2), GRID_STARTING_Y, 0);
 }
 
 void GameInput(Game_t *game) {
