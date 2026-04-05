@@ -1,0 +1,938 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "piece.h"
+#include "raylib.h"
+#include "config.h"
+
+Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
+    
+    Piece_t * newPiece = malloc(sizeof(Piece_t));
+
+    newPiece->x = x;
+    newPiece->y = y;
+
+    newPiece->isPlaced = false;
+    newPiece->type = type;
+    newPiece->rotation = rotation;
+    
+    newPiece->blocks[3].rect = (Rectangle) {x, y, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE};
+
+    switch (newPiece->type) {
+        case I_SHAPED:
+        {
+            newPiece->blocks[3].color = BLUE;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {-1, 1, 2};
+            int offsetsY[3] = {0, 0, 0};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = BLUE,
+                    .outlineColor = BLACK 
+                };
+            }
+            break;
+        }
+
+        case J_SHAPED:
+        {
+            newPiece->blocks[3].color = DARKBLUE;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {-1, -1, 1};
+            int offsetsY[3] = {-1, 0, 0};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = DARKBLUE,
+                    .outlineColor = BLACK 
+                };
+            }
+            break;
+        }
+
+        case L_SHAPED:
+        {
+            newPiece->blocks[3].color = ORANGE;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {-1, 1, 1};
+            int offsetsY[3] = {0, 0, -1};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = ORANGE,
+                    .outlineColor = BLACK 
+                };
+            }
+            break;
+        }
+
+        case O_SHAPED:
+        {
+            newPiece->blocks[3].color = YELLOW;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {0, 1, 1};
+            int offsetsY[3] = {1, 0, 1};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = YELLOW,
+                    .outlineColor = BLACK 
+                };
+            }
+            break;
+        }
+
+        case S_SHAPED:
+        {
+            newPiece->blocks[3].color = GREEN;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {-1, 0, 1};
+            int offsetsY[3] = {1, 1, 0};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = GREEN,
+                    .outlineColor = BLACK 
+                };
+            }
+            break;
+        }
+
+        case Z_SHAPED:
+        {
+            newPiece->blocks[3].color = RED;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {-1, 0, 1};
+            int offsetsY[3] = {0, 1, 1};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = RED,
+                    .outlineColor = BLACK 
+                };
+            }
+            break;
+        }
+
+        case T_SHAPED:
+        {
+            newPiece->blocks[3].color = PURPLE;
+            newPiece->blocks[3].outlineColor = BLACK;
+            
+            int offsetsX[3] = {0, -1, 1};
+            int offsetsY[3] = {-1, 0, 0};
+            
+            for (int i = 0; i < 3; i++) {
+                newPiece->blocks[i] = (Block_t) 
+                {
+                    .rect = {newPiece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        newPiece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE},
+                    .color = PURPLE,
+                    .outlineColor = BLACK
+                };
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    puts("Piece spawned.");
+    return newPiece;            
+}
+
+void SavePlacedBlocks(Piece_t * piece, Block_t * head) {
+    
+    Block_t * pBlock = head;
+    
+    for (int i = 0; i < 4; i++) {
+
+        Block_t * newBlock = malloc(sizeof(Block_t));
+        newBlock->next = NULL;
+
+        newBlock->rect = piece->blocks[i].rect;
+        newBlock->color = piece->blocks[i].color;
+        newBlock->outlineColor = piece->blocks[i].outlineColor;
+        newBlock->lastPosition = piece->blocks[i].lastPosition;
+
+        while (pBlock->next != NULL) {
+            pBlock = pBlock->next;
+        }
+
+        pBlock->next = newBlock;
+
+        puts("Saved 1 block.");
+    }
+
+    
+
+    free(piece);
+    puts("Freed piece.");
+}
+
+void ApplyCollisionsWalls(Piece_t * piece) {
+    
+    for (int i = 0; i < 4; i++) {
+    
+        if (piece->blocks[i].rect.y + GRID_SQUARE_SIZE >= GRID_FLOOR) {
+
+            piece->isPlaced = true;
+
+            float overlap = (piece->blocks[i].rect.y + GRID_SQUARE_SIZE - GRID_FLOOR);
+
+            for (int j = 0; j < 4; j++) {piece->blocks[j].rect.y -= overlap;}
+            return;
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        
+        if (piece->blocks[i].rect.x + GRID_SQUARE_SIZE > GRID_WALL_RIGHT) {
+
+            float overlap = (piece->blocks[i].rect.x + GRID_SQUARE_SIZE - GRID_WALL_RIGHT);
+
+            for (int j = 0; j < 4; j++) {piece->blocks[j].rect.x -= overlap;}
+            return;
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        
+        if (piece->blocks[i].rect.x < GRID_STARTING_X) {
+
+            float overlap = (GRID_STARTING_X - piece->blocks[i].rect.x);
+
+            for (int j = 0; j < 4; j++) {piece->blocks[j].rect.x += overlap;}
+            return;
+        }
+    }
+}
+
+void ApplyCollisionsBlocks(Piece_t * piece, Block_t * head) {  
+
+    Block_t * pBlock = head->next;
+
+    for (int i = 0; i < 4; i++) {
+        
+        pBlock = head->next;
+
+        while (pBlock != NULL) {
+         
+            if ((piece->blocks[i].rect.x == pBlock->rect.x) 
+                && (piece->blocks[i].rect.y == pBlock->rect.y)) {
+                    
+                if (piece->blocks[i].lastPosition.x < pBlock->rect.x) {
+
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x -= GRID_SQUARE_SIZE;}
+                } 
+                
+                else if (piece->blocks[i].lastPosition.x > pBlock->rect.x) {
+
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.x += GRID_SQUARE_SIZE;}
+                }
+
+                if (piece->blocks[i].lastPosition.y < pBlock->rect.y) {
+                
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y -= GRID_SQUARE_SIZE;}
+                
+                    piece->isPlaced = true;
+                    return;
+                }
+
+                else if (piece->blocks[i].lastPosition.y > pBlock->rect.y){
+                
+                    for (int k = 0; k < 4; k++) {piece->blocks[k].rect.y += GRID_SQUARE_SIZE;}
+                }
+            }
+
+            pBlock = pBlock->next;
+        }
+    }
+}
+
+void RotatePiece(Piece_t * piece, Block_t * head) {
+
+    Block_t *pBlock = head->next;
+
+    bool leftBlocked = false;
+    bool rightBlocked = false;
+
+    if (head->next != NULL) {
+        
+        for (int i = 0; i < 4; i++) {
+        
+            while (pBlock != NULL) {
+                
+                if (pBlock->rect.y == piece->blocks[i].rect.y) {
+
+                    if (pBlock->rect.x == piece->blocks[i].rect.x - GRID_SQUARE_SIZE) {
+                        leftBlocked = true;
+                    }
+
+                    if (pBlock->rect.x == piece->blocks[i].rect.x + GRID_SQUARE_SIZE) {
+                        rightBlocked = true;
+                    }
+                }
+                pBlock = pBlock->next;
+            }
+        }
+    }
+
+    if (leftBlocked || rightBlocked) {
+        return;
+    }
+
+    piece->rotation = (piece->rotation + 90) % 360;
+
+    switch(piece->type) {
+
+        case I_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0 || piece->rotation == 180) {    
+            
+                int offsetsX[3] = {-1, 1, 2};
+                int offsetsY[3] = {0, 0, 0};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+
+            else if (piece->rotation == 90 || piece->rotation == 270) {    
+            
+                int offsetsX[3] = {0, 0, 0};
+                int offsetsY[3] = {-1, 1, 2};
+            
+             for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+        }
+            break;
+
+        case J_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0) {    
+            
+                int offsetsX[3] = {-1, -1, 1};
+                int offsetsY[3] = {-1, 0, 0};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                    
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+
+            else if (piece->rotation == 90) {    
+            
+                int offsetsX[3] = {0, 1, 0};
+                int offsetsY[3] = {-1, -1, 1};
+            
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+
+            else if (piece->rotation == 180) {    
+            
+                int offsetsX[3] = {-1, 1, 1};
+                int offsetsY[3] = {0, 0, 1};
+            
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+
+            else if (piece->rotation == 270) {    
+            
+                int offsetsX[3] = {0, 0, -1};
+                int offsetsY[3] = {-1, 1, 1};
+            
+             for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+        }
+            break;
+
+        case L_SHAPED: 
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+            
+            if (piece->rotation == 0) {    
+                
+                int offsetsX[3] = {-1, 1, 1};
+                int offsetsY[3] = {0, 0, -1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                    
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+            else if (piece->rotation == 90) {    
+                
+                int offsetsX[3] = {0, 0, 1};
+                int offsetsY[3] = {-1, 1, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+                    
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE};
+                }
+            }
+            else if (piece->rotation == 180) {    
+                
+                int offsetsX[3] = {-1, -1, 1};
+                int offsetsY[3] = {1, 0, 0};
+                
+                for (int i = 0; i < 3; i++) {
+
+                piece->blocks[i].rect = (Rectangle) {
+                
+                    piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                    piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                    GRID_SQUARE_SIZE, 
+                    GRID_SQUARE_SIZE};
+                }
+            }
+            else if (piece->rotation == 270) {    
+                
+                int offsetsX[3] = {-1, 0, 0};
+                int offsetsY[3] = {-1, -1, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                piece->blocks[i].rect = (Rectangle) {
+                
+                    piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                    piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                    GRID_SQUARE_SIZE, 
+                    GRID_SQUARE_SIZE};
+            }
+        }
+    }
+            break;
+
+        case O_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0 ||piece->rotation == 90 || piece->rotation == 180 || piece->rotation == 270) {
+                
+                int offsetsX[3] = {0, 1, 1};
+                int offsetsY[3] = {1, 0, 1};
+
+                for (int i = 0; i < 3; i++) {
+                    
+                    piece->blocks[i].rect = (Rectangle) {
+                        
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+        }
+            break;
+        
+        case S_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0 || piece->rotation == 180) {
+
+                int offsetsX[3] = {-1, 0, 1};
+                int offsetsY[3] = {1, 1, 0};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+
+            else if (piece->rotation == 90 || piece->rotation == 270) {
+
+                int offsetsX[3] = {0, 1, 1};
+                int offsetsY[3] = {-1, 0, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+        }
+            break;
+
+        case Z_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0 || piece->rotation == 180) {
+
+                int offsetsX[3] = {-1, 0, 1};
+                int offsetsY[3] = {0, 1, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+
+            else if (piece->rotation == 90 || piece->rotation == 270) {
+                
+                int offsetsX[3] = {1, 1, 0};
+                int offsetsY[3] = {0, -1, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+        }
+            break;  
+
+        case T_SHAPED:
+        {
+            piece->blocks[3].rect.x = piece->x;
+            piece->blocks[3].rect.y = piece->y; 
+
+            if (piece->rotation == 0) {
+
+                int offsetsX[3] = {0, -1, 1};
+                int offsetsY[3] = {-1, 0, 0};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+
+            else if (piece->rotation == 90) {
+
+                int offsetsX[3] = {0, 1, 0};
+                int offsetsY[3] = {-1, 0, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+            else if (piece->rotation == 180) {
+
+                int offsetsX[3] = {-1, 0, 1};
+                int offsetsY[3] = {0, 1, 0};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+            
+            else if (piece->rotation == 270) {
+                
+                int offsetsX[3] = {-1, 0, 0};
+                int offsetsY[3] = {0, -1, 1};
+                
+                for (int i = 0; i < 3; i++) {
+
+                    piece->blocks[i].rect = (Rectangle) {
+
+                        piece->blocks[3].rect.x + (offsetsX[i] * GRID_SQUARE_SIZE), 
+                        piece->blocks[3].rect.y + (offsetsY[i] * GRID_SQUARE_SIZE), 
+                        GRID_SQUARE_SIZE, 
+                        GRID_SQUARE_SIZE
+                    };
+                }
+            }
+        }
+            break;
+
+        default: 
+        break;
+    }
+    return;
+}
+
+void GetMovementInput(Piece_t * piece, Block_t * head) {
+    
+    Block_t * pBlock;
+
+    for (int i = 0; i < 4; i++) {
+
+        piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
+        piece->blocks[i].lastPosition.y = piece->blocks[i].rect.y;
+    }
+
+    if (piece->isPlaced == false) {
+        
+        if (IsKeyPressed(KEY_SPACE)) {
+            
+            if (head->next == NULL) {
+                
+                bool canMove = true;
+                
+                while (canMove) {
+                
+                    for (int i = 0; i < 4; i++) {
+                
+                        if (piece->blocks[i].rect.y == GRID_FLOOR - GRID_SQUARE_SIZE) {
+                
+                            canMove = false;
+                            break;
+                        } 
+                    }
+
+                    if (canMove == false) {break;}
+
+                    for (int i = 0; i < 4; i++) {
+                
+                        piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
+                    } 
+
+                    piece->y += GRID_SQUARE_SIZE;
+                }
+            }
+            
+            else {
+
+                bool canMove = true;
+
+                while (canMove) {
+    
+                    for (int i = 0; i < 4; i++) {
+                        
+                        pBlock = head->next;
+                        
+                        while (pBlock != NULL) {
+                            
+                            if (pBlock->rect.x == piece->blocks[i].rect.x) {
+                                
+                                if (pBlock->rect.y == piece->blocks[i].rect.y + GRID_SQUARE_SIZE) {
+                                
+                                    canMove = false;    
+                                    break;
+                                }
+                            
+                            }
+                            pBlock = pBlock->next;
+                        }
+                    }
+    
+                    for (int i = 0; i < 4; i++) {
+                        
+                        if (piece->blocks[i].rect.y + GRID_SQUARE_SIZE == GRID_FLOOR) {
+                            canMove = false;
+                        }
+                    }
+
+                    if (canMove == true) {
+    
+                        for (int i = 0; i < 4; i++) {
+    
+                            piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
+                        }
+                        piece->y += GRID_SQUARE_SIZE;
+                    }
+                }            
+            }
+        }
+
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
+            
+            RotatePiece(piece, head);
+            return;
+        }
+
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
+            
+            for (int i = 0; i < 4; i++) {
+
+                piece->blocks[i].rect.x += GRID_SQUARE_SIZE;
+            }
+            piece->x += GRID_SQUARE_SIZE;    
+
+            return;
+        }
+        
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
+            
+            for (int i = 0; i < 4; i++) {
+            
+                piece->blocks[i].rect.x -= GRID_SQUARE_SIZE;
+            }
+            piece->x -= GRID_SQUARE_SIZE;
+
+            return;
+        }
+        
+        if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
+            
+            for (int i = 0; i < 4; i++) {
+
+                piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
+            }
+            piece->y += GRID_SQUARE_SIZE;
+            
+            return;
+        }
+    }
+}
+
+void CurrentPieceGravity(Piece_t * piece) {
+    
+    for (int i = 0; i < 4; i++) {
+        
+        piece->blocks[i].lastPosition.x = piece->blocks[i].rect.x;
+        piece->blocks[i].lastPosition.y = piece->blocks[i].rect.y;
+    }
+
+    if (piece->isPlaced == false) {
+        
+        for (int i = 0; i < 4; i++) {        
+        
+            piece->blocks[i].rect.y += GRID_SQUARE_SIZE;
+        }
+        piece->y += GRID_SQUARE_SIZE;
+    }
+}
+
+bool DetectCombos(Block_t * head, bool * comboLines, int * comboCounter) {
+    
+    if (head == NULL) {return false;}
+
+    bool returnValue = false;
+    int counter;
+    Block_t * pBlock = head->next;
+
+    for (int i = 0; i < GRID_HEIGHT; i++) {
+
+        counter = 0;
+        pBlock = head->next;
+
+        while (pBlock != NULL) {
+            if (pBlock->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {counter += 1;}
+            pBlock = pBlock->next;
+        }
+
+        if (counter == GRID_WIDTH) {
+            puts("Combo detected.");
+            comboLines[i] = true;
+            returnValue = true;
+            *comboCounter += 1;
+        }
+    }
+    return returnValue;
+}
+
+void LineExplosions(Block_t * head, bool * comboLines, int * score, int level) {
+
+    if (head == NULL) {return;}
+    
+    Block_t * pBlock;
+    Block_t * temp;
+
+    int lastLine = 0;
+    int comboCounter = 0;
+
+    for (int i = 0; i < GRID_HEIGHT; i++) {
+        
+        if (comboLines[i] == true) {
+            
+            comboLines[i] = false;
+            lastLine = i;
+            comboCounter += 1;
+
+            pBlock = head;
+            while (pBlock->next != NULL) {
+
+                if (pBlock->next->rect.y == GRID_STARTING_Y + i * GRID_SQUARE_SIZE) {
+                
+                    temp = pBlock->next;
+                    pBlock->next = pBlock->next->next;
+                    free(temp);            
+                } 
+                else {pBlock = pBlock->next;}
+            }
+        }
+    }
+
+    pBlock = head->next;
+    while (pBlock != NULL) {
+
+        if (pBlock->rect.y < GRID_STARTING_Y + lastLine * GRID_SQUARE_SIZE) {
+        
+            pBlock->rect.y += GRID_SQUARE_SIZE * comboCounter;
+        }
+        pBlock = pBlock->next;
+    }
+
+    *score += comboCounter * 300 * (level + 1);
+}
+
+bool IsGameOver(Block_t * head) {
+    
+    Block_t * pBlock = head->next;
+
+    while (pBlock != NULL) {
+        
+        if (pBlock->rect.y < GRID_STARTING_Y) {return true;}
+        pBlock = pBlock->next;
+    }
+
+    return false;
+}
+
+void FreeMemory(Block_t * head, Piece_t * piece) {
+    
+    Block_t * temp;
+
+    if (piece != NULL) {free(piece);}
+
+    while (head != NULL) {
+
+        temp = head;
+        head = head->next;
+        free(temp);
+        puts("Block freed.");
+    }
+
+    free(head);
+    puts("Head freed.");
+}

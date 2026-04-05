@@ -15,7 +15,7 @@ This project consists of a Tetris clone built with C and the Raylib framework.
 - Placement Preview, a.k.a. "Ghost Pieces"
 - "Next Piece" Preview
 - Reset/Restart Button
-- 
+  
 ## How to run
 To compile and run, follow these steps:
 

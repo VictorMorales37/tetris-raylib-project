@@ -7,12 +7,12 @@
 CC = gcc
 
 # define any compile-time flags
-CFLAGS	:= -Wall -Wextra -g
+CFLAGS	:= -Wall -Wextra -g -fsanitize=address
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS = -lraylib -lm -lpthread -ldl -lrt -lX11
+LFLAGS = -lraylib -lm -lpthread -ldl -lrt -lX11 -fsanitize=address
 
 # define output directory
 OUTPUT	:= output
