@@ -77,22 +77,27 @@ void DrawTetrisGrid() {
     }
 }   
 
-void DrawInfo(int score, int level) {
+void DrawInfo(int score, int level, int lineCounter) {
     
     char scoreText[20] = "Score: ";
-    char scoreValue[6] = "";
-    
     char levelText[20] = "Level: ";
+    char linesText[20] = "Lines: ";
+
+    char scoreValue[6] = "";
     char levelValue[2] = "";
+    char linesValue[6] = "";
 
     sprintf(scoreValue, "%d", score);
-    strcat(scoreText, scoreValue);
-
     sprintf(levelValue, "%d", level);
+    sprintf(linesValue, "%d", lineCounter);
+    
+    strcat(scoreText, scoreValue);
     strcat(levelText, levelValue);
+    strcat(linesText, linesValue);
 
     DrawText(scoreText, 50, 10, 50, WHITE);
     DrawText(levelText , 50, 50, 50, WHITE);
+    DrawText(linesText , 50, 90, 50, WHITE);
 }
 
 Piece_t * SpawnPiece(int type, int x, int y, int rotation) {
@@ -1051,16 +1056,16 @@ void DrawGameOverMessage(int score) {
 
 }
 
+void UpdateLevel(int * level, int comboCounter, float * speed) {
 
-void UpdateLevel(int * level, int comboCounter, float * speed, int * lastCounter) {
+    for (int i = 0; i <= 200; i += 10) {
 
-    if (comboCounter != *lastCounter && comboCounter % 10 == 0) {
-     
-        *speed += 0.5;
-        *level += 1;
+        if (comboCounter >= i) {
+            
+            *speed = 1 + ((i / 10) * 0.25);
+            *level = 1 + (i / 10);
+        }
     }
-
-    *lastCounter = comboCounter;
 }
 
 void FreeMemory(Block_t * head, Piece_t * piece) {
@@ -1092,7 +1097,6 @@ int main(void) {
     int score = 0;
     int level = 1;
     int comboCounter = 0;
-    int tempCounter = 0;
 
     int frame = 0;
 
@@ -1131,7 +1135,6 @@ int main(void) {
             
             if (currentPiece->isPlaced) {
                 
-                
                 typeIndex += 1;
                 
                 if (typeIndex > 6) {
@@ -1147,7 +1150,7 @@ int main(void) {
                     
                     LineExplosions(head, comboLines, &score, level);
                     
-                    UpdateLevel(&level, comboCounter, &speed, &tempCounter);
+                    UpdateLevel(&level, comboCounter, &speed);
                     
                     skipEveryFrame = TARGET_FPS / speed;
                 }
@@ -1167,7 +1170,7 @@ int main(void) {
         else {
             
             ClearBackground(DARKBLUE);
-            DrawInfo(score, level);
+            DrawInfo(score, level, comboCounter);
             DrawTetrisGrid();
             DrawPlacedBlocks(head);
             DrawCurrentPiece(currentPiece);
