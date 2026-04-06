@@ -74,6 +74,7 @@ void InitializeGame(Game_t *game) {
     
     srand(time(NULL));
     
+    SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "TETRIS");
     SetTargetFPS(TARGET_FPS);        
     

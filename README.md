@@ -32,6 +32,6 @@ Step 1: Install MinGW if not already installed.
 Setp 2: Open cmd or PowerShell in the project folder and run:
 
 ```bash
-    mingw32-make
+    make
     main.exe
 ```
