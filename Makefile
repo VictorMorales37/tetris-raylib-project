@@ -3,7 +3,7 @@
 # 'make clean'  removes all .o and executable files
 #
 
-CC = gcc
+CC      = gcc
 CFLAGS  := -Wall -Wextra -g
 OUTPUT  := output
 SRC     := src
