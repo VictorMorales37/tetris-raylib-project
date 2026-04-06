@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdlib.h>
 
 void ShuffleArray(int * array, int size) {
     
